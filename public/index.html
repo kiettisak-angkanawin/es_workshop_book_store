@@ -48,6 +48,9 @@
             Page : <input type="text" ng-model="page" /><br />
             <input type="button" value="Search" />
         </fieldset>
+        <ul ng-repeat="group in categoryGroups">
+          <li>{{ group.key }} ( {{ group.doc_count }})</li>
+        </ul>
         <table class="table table-striped">
           <thead>
             <th>Title</th>
@@ -82,16 +85,26 @@ app.controller('BookController', function($scope, $http) {
   };
   $scope.getBook();
 
+
   $scope.getBookSearch = function(keyword){
-    $http.post('http://localhost:9200/store/_search', {
-      "query": {
+    var postData = {};
+    if(keyword) {
+      postData.query = {
         "match": {
           "_all": keyword
         }
+      };
+    }
+    postData.aggs = { "group_category": {
+        "terms": {
+          "field": "category.raw"
+        }
       }
-    }).
+    };
+    $http.post('http://localhost:9200/store/_search', postData).
     success(function(data, status){
       $scope.books = data.hits.hits;
+      $scope.categoryGroups = data.aggregations.group_category.buckets;
     }).
     error(function(data, status, headers, config){
       $scope.books = [];
