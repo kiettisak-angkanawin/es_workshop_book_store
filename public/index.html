@@ -40,7 +40,19 @@
         </div>
       </div>
 
-      <div id="content" role="main">
+      <div id="content" role="main" ng-controller="BookController">
+        <table class="table table-striped">
+          <thead>
+            <th>Title</th>
+            <th>Tags</th>
+            <th>Page</th>
+          </thead>
+          <tr ng-repeat="book in books">
+            <td>{{ book._source.title }}</td>
+            <td>{{ book._source.tags }}</td>
+            <td>{{ book._source.page }}</td>
+          </tr>
+        </table>
 
 
           <footer id="footer">
@@ -49,3 +61,20 @@
       </div>
     </body>
 </html>
+
+<script>
+var app = angular.module('BookStore', []);
+app.controller('BookController', function($scope, $http) {
+  $scope.getBook = function(){
+    $http.post('http://localhost:9200/store/_search', {}).
+    success(function(data, status){
+      console.log(data);
+      $scope.books = data.hits.hits;
+    });
+
+  };
+  $scope.getBook();
+
+  
+});
+</script>
