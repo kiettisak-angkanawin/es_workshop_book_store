@@ -44,7 +44,9 @@
         <div class="container">
         <fieldset>
           <legend>Search Book</legend>
-
+            Keyword : <input type="text" ng-model="keyword" /><br />
+            Page : <input type="text" ng-model="page" /><br />
+            <input type="button" value="Search" />
         </fieldset>
         <table class="table table-striped">
           <thead>
@@ -74,13 +76,33 @@ app.controller('BookController', function($scope, $http) {
   $scope.getBook = function(){
     $http.post('http://localhost:9200/store/_search', {}).
     success(function(data, status){
-      console.log(data);
       $scope.books = data.hits.hits;
     });
 
   };
   $scope.getBook();
 
+  $scope.getBookSearch = function(keyword){
+    $http.post('http://localhost:9200/store/_search', {
+      "query": {
+        "match": {
+          "_all": keyword
+        }
+      }
+    }).
+    success(function(data, status){
+      $scope.books = data.hits.hits;
+    }).
+    error(function(data, status, headers, config){
+      $scope.books = [];
+    });
+
+  };
+  $scope.getBook();
+
+  $scope.$watch('keyword', function(newValue, oldValue){
+    $scope.getBookSearch(newValue)
+  });
 
 });
 </script>
