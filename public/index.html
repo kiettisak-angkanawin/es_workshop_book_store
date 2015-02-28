@@ -41,6 +41,11 @@
       </div>
 
       <div id="content" role="main" ng-controller="BookController">
+        <div class="container">
+        <fieldset>
+          <legend>Search Book</legend>
+
+        </fieldset>
         <table class="table table-striped">
           <thead>
             <th>Title</th>
@@ -58,6 +63,7 @@
           <footer id="footer">
 
           </footer>
+        </div>
       </div>
     </body>
 </html>
@@ -75,6 +81,6 @@ app.controller('BookController', function($scope, $http) {
   };
   $scope.getBook();
 
-  
+
 });
 </script>
