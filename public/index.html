@@ -123,8 +123,8 @@ app.controller('BookController', function($scope, $http) {
   };
   $scope.getBook();
 
-  $scope.$watch('keyword', function(newValue, oldValue){
-    $scope.getBookSearch(newValue)
+  $scope.$watchGroup(['keyword'], function (newValue, oldValue) {
+    $scope.getBookSearch(newValue[0]);
   });
 
 });
