@@ -83,16 +83,39 @@ app.controller('BookController', function($scope, $http) {
   $scope.getBook();
 
 
-  $scope.getBookSearch = function(keyword){
-    var postData = {};
+  $scope.getBookSearch = function(keyword, price_from, price_to){
+    var postData = {
+      query: {
+        bool: {
+          must:[]
+        }
+      }
+    };
     if(keyword) {
-      postData.query = {
+      var keyword_query = {
         "match": {
           "_all": keyword
         }
       };
+      postData.query.bool.must.push(keyword_query);
+      };
+
+    if(price_from || price_to) {
+      var price_range = {
+        "range": {
+          "price": {
+          }
+        }
+      };
+      if(price_from){
+        price_range.range.price.gte = price_from;
+      }
+      if(price_to){
+        price_range.range.price.lte = price_to;
+      }
+      postData.query.bool.must.push(price_range);
     }
-      postData.aggs = {};
+    postData.aggs = {};
     postData.aggs.group_category = {
         "terms": {
           "field": "category.raw"
@@ -123,8 +146,8 @@ app.controller('BookController', function($scope, $http) {
   };
   $scope.getBook();
 
-  $scope.$watchGroup(['keyword'], function (newValue, oldValue) {
-    $scope.getBookSearch(newValue[0]);
+  $scope.$watchGroup(['keyword', 'price_from', 'price_to'], function (newValue, oldValue) {
+    $scope.getBookSearch(newValue[0], newValue[1], newValue[2]);
   });
 
 });
