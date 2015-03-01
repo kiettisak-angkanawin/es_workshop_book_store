@@ -26,44 +26,41 @@
             </button>
             <a class="navbar-brand" href="#">Book Store</a>
           </div>
-          <div class="navbar-collapse collapse">
-            <form class="navbar-form navbar-right" role="form">
-              <div class="form-group">
-                <input type="text" placeholder="Email" class="form-control">
-              </div>
-              <div class="form-group">
-                <input type="password" placeholder="Password" class="form-control">
-              </div>
-              <button type="submit" class="btn btn-success">Sign in</button>
-            </form>
-          </div><!--/.navbar-collapse -->
         </div>
       </div>
 
       <div id="content" role="main" ng-controller="BookController">
         <div class="container">
-        <fieldset>
-          <legend>Search Book</legend>
-            Keyword : <input type="text" ng-model="keyword" /><br />
-            Page : <input type="text" ng-model="page" /><br />
-            <input type="button" value="Search" />
-        </fieldset>
-        <ul ng-repeat="group in categoryGroups">
-          <li>{{ group.key }} ( {{ group.doc_count }})</li>
-        </ul>
-        <table class="table table-striped">
-          <thead>
-            <th>Title</th>
-            <th>Tags</th>
-            <th>Page</th>
-          </thead>
-          <tr ng-repeat="book in books">
-            <td>{{ book._source.title }}</td>
-            <td>{{ book._source.tags }}</td>
-            <td>{{ book._source.page }}</td>
-          </tr>
-        </table>
-
+          <div class="col-md-3">
+          <ul  class="list-group" ng-repeat="group in categoryGroups">
+            <li class="list-group-item">
+              <span class="badge">{{ group.doc_count }}</span>
+              {{ group.key }}
+              </li>
+          </ul>
+        </div>
+        <div class="col-md-9">
+          <form class="form-inline">
+            <div class="form-group">
+              <label for="keywordInput">Keyword</label>
+              <input type="text" ng-model="keyword"  class="form-control" id="keywordInput"  placeholder="Keyword">
+            </div>
+          </form>
+        </div>
+        <div class="col-md-9">
+          <table class="table table-striped">
+            <thead>
+              <th>Title</th>
+              <th>Tags</th>
+              <th>Page</th>
+            </thead>
+            <tr ng-repeat="book in books">
+              <td>{{ book._source.title }}</td>
+              <td>{{ book._source.tags }}</td>
+              <td>{{ book._source.page }}</td>
+            </tr>
+          </table>
+        </div>
 
           <footer id="footer">
 
