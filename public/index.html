@@ -13,6 +13,7 @@
         <!-- JS -->
         <script src="/bower_components/jquery/dist/jquery.min.js"></script>
         <script src="/bower_components/angularjs/angular.min.js"></script>
+        <script src="/bower_components/angular-mass-autocomplete/massautocomplete.min.js"></script>
     </head>
     <body ng-app="BookStore">
       <div class="navbar navbar-inverse navbar-static-top" role="navigation">
@@ -52,11 +53,18 @@
 	          <form class="form-inline">
 	            <div class="form-group">
 	              <label for="keywordInput">Keyword</label>
-	              <input type="text" ng-model="keyword"  class="form-control" id="keywordInput"  placeholder="Keyword">
+	              <div mass-autocomplete>
+		              <input type="text" ng-model="keyword" mass-autocomplete-item="autocomplete_options" class="form-control" id="keywordInput"  placeholder="Keyword">
+	              </div>
 	              <label for="pageInput">Page &gt;</label>
 	              <input type="text" ng-model="page_from"  class="form-control" id="pageInput" placeholder="Page">
 	            </div>
 	          </form>
+	          <ul  class="list-group" ng-repeat="book in suggesBooks">
+	            <li class="list-group-item" ng-click="">
+	              {{ book._source.title }}
+	              </li>
+				</ul>
           <table class="table table-striped">
             <thead>
               <th>Title</th>
@@ -84,7 +92,7 @@
 
 <script>
 var app = angular.module('BookStore', []);
-app.controller('BookController', function($scope, $http) {
+app.controller('BookController', function($scope, $http, $q) {
 	$scope.selectedCategory = '';
   $scope.getBook = function(){
     $http.post('http://localhost:9200/store/_search', {}).
@@ -165,9 +173,36 @@ app.controller('BookController', function($scope, $http) {
   };
   $scope.getBook();
 
-  $scope.$watchGroup(['keyword', 'page_from', 'selectedCategory'], function (newValue, oldValue) {
-    $scope.getBookSearch(newValue[0], newValue[1], newValue[2]);
+  $scope.$watchGroup(['page_from', 'selectedCategory'], function (newValue, oldValue) {
+    $scope.getBookSearch($scope.keyword, newValue[0], newValue[1]);
   });
+  
+  function suggest_state(term) {
+	  var deferred = $q.defer();
+	  var postData = {
+		  "query": {
+		    "match": {
+		      "title.suggestion": term
+		    }
+		  }
+		};
+	  $http.post('http://localhost:9200/store/_search', postData).
+    success(function(data, status){
+		var results = [];
+		
+		for(var i = 0; i < data.hits.hits; i++) {
+			var item = data.hits.hits[i];
+			results.push({ "label": item.title, "value": item.title});
+		}
+		
+		deferred.resolve(results);
+    }); 
+	return deferred.promise; 
+  }
+  
+  $scope.autocomplete_options = {
+    suggest: suggest_state
+  };
   
   $scope.selectCat = function(cat){
 	  $scope.selectedCategory = cat;
