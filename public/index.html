@@ -92,16 +92,29 @@ app.controller('BookController', function($scope, $http) {
         }
       };
     }
-    postData.aggs = { "group_category": {
+      postData.aggs = {};
+    postData.aggs.group_category = {
         "terms": {
           "field": "category.raw"
         }
-      }
-    };
+      };
+
+      postData.aggs.group_price = {
+          "histogram": {
+              "field": "price",
+              "interval": 10,
+              "min_doc_count": 0
+          }
+      };
+
+
+
+
     $http.post('http://localhost:9200/store/_search', postData).
     success(function(data, status){
       $scope.books = data.hits.hits;
       $scope.categoryGroups = data.aggregations.group_category.buckets;
+                $scope.priceGroups = data.aggregations.group_price.buckets;
     }).
     error(function(data, status, headers, config){
       $scope.books = [];
